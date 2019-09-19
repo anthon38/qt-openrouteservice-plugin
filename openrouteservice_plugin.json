@@ -1,0 +1,10 @@
+{
+    "Keys": ["openrouteservice"],
+    "Provider": "ors",
+    "Version": 100,
+    "Experimental": false,
+    "Features": [
+        "OnlineRoutingFeature",
+        "ReverseGeocodingFeature"
+    ]
+}
