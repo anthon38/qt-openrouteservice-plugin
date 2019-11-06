@@ -23,8 +23,24 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QGeoCoordinate>
+#include <QGeoRectangle>
+#include <QGeoAddress>
 
 QT_BEGIN_NAMESPACE
+
+static QGeoAddress parseAddressObject(const QJsonObject &object)
+{
+    QGeoAddress address;
+    address.setText(object.value(QStringLiteral("label")).toString());
+    address.setCountry(object.value(QStringLiteral("country")).toString());
+    address.setCountryCode(object.value(QStringLiteral("country_a")).toString());
+    address.setState(object.value(QStringLiteral("region")).toString());
+    address.setCity(object.value(QStringLiteral("locality")).toString());
+    address.setDistrict(object.value(QStringLiteral("localadmin")).toString());
+    address.setStreet(object.value(QStringLiteral("street")).toString());
+    address.setPostalCode(object.value(QStringLiteral("postalcode")).toString());
+    return address;
+}
 
 QGeoCodeReplyOpenrouteservice::QGeoCodeReplyOpenrouteservice(QNetworkReply *reply, QObject *parent)
 :   QGeoCodeReply(parent)
@@ -61,20 +77,33 @@ void QGeoCodeReplyOpenrouteservice::onNetworkReplyFinished()
         return;
     }
 
-    QGeoLocation location;
-
     QJsonArray features = document.object().value(QStringLiteral("features")).toArray();
-    QJsonObject poi = features.at(0).toObject();
-    QJsonObject geometry = poi.value(QStringLiteral("geometry")).toObject();
-    QJsonArray coordinates = geometry.value(QStringLiteral("coordinates")).toArray();
-    location.setCoordinate(QGeoCoordinate(coordinates.at(1).toDouble(), coordinates.at(0).toDouble()));
+    for (int i = 0; i < features.count(); ++i) {
+        QGeoLocation location;
+        QJsonObject feature = features.at(i).toObject();
+        if (feature.contains(QStringLiteral("bbox"))) {
+            QGeoRectangle bbox;
+            QJsonArray box = feature.value(QStringLiteral("bbox")).toArray();
+            if (box.count() == 4) {
+                bbox.setBottomLeft(QGeoCoordinate(box.at(1).toDouble(), box.at(0).toDouble()));
+                bbox.setTopRight(QGeoCoordinate(box.at(3).toDouble(), box.at(2).toDouble()));
+            }
+            if (bbox.isValid()) {
+                location.setBoundingBox(bbox);
+            }
+        }
+        QJsonObject geometry = feature.value(QStringLiteral("geometry")).toObject();
+        QJsonArray coordinates = geometry.value(QStringLiteral("coordinates")).toArray();
+        location.setCoordinate(QGeoCoordinate(coordinates.at(1).toDouble(), coordinates.at(0).toDouble()));
+        QJsonObject properties = feature.value(QStringLiteral("properties")).toObject();
+        location.setAddress(parseAddressObject(properties));
 
-    QVariantMap attributes;
-    QJsonObject properties = poi.value(QStringLiteral("properties")).toObject();
-    attributes.insert(QStringLiteral("name"), properties.value(QStringLiteral("name")).toString());
-    location.setExtendedAttributes(attributes);
+        QVariantMap attributes;
+        attributes.insert(QStringLiteral("name"), properties.value(QStringLiteral("name")).toString());
+        location.setExtendedAttributes(attributes);
 
-    addLocation(location);
+        addLocation(location);
+    }
 
     setFinished(true);
 }

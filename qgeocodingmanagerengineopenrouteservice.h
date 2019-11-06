@@ -22,6 +22,7 @@
 
 #include <QGeoServiceProvider>
 #include <QGeoCodingManagerEngine>
+#include <QGeoCoordinate>
 
 QT_BEGIN_NAMESPACE
 
@@ -37,9 +38,9 @@ public:
                                QString *errorString);
     ~QGeoCodingManagerEngineOpenrouteservice() override;
 
-//    QGeoCodeReply *geocode(const QGeoAddress &address, const QGeoShape &bounds) override;
-//    QGeoCodeReply *geocode(const QString &address, int limit, int offset,
-//                           const QGeoShape &bounds) override;
+    QGeoCodeReply *geocode(const QGeoAddress &address, const QGeoShape &bounds) override;
+    QGeoCodeReply *geocode(const QString &address, int limit, int offset,
+                           const QGeoShape &bounds) override;
     QGeoCodeReply *reverseGeocode(const QGeoCoordinate &coordinate,
                                   const QGeoShape &bounds) override;
 
@@ -50,6 +51,8 @@ private Q_SLOTS:
 private:
     QNetworkAccessManager *m_networkManager;
     QString m_accessToken;
+    QString m_sources;
+    QGeoCoordinate m_focusPoint;
 };
 
 QT_END_NAMESPACE

@@ -4,7 +4,8 @@
     "Version": 100,
     "Experimental": false,
     "Features": [
-        "OnlineRoutingFeature",
-        "ReverseGeocodingFeature"
+        "OnlineGeocodingFeature",
+        "ReverseGeocodingFeature",
+        "OnlineRoutingFeature"
     ]
 }
