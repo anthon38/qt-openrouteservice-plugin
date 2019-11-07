@@ -45,8 +45,8 @@ QGeoCodingManagerEngineOpenrouteservice::QGeoCodingManagerEngineOpenrouteservice
     if (parameters.contains(QStringLiteral("ors.api_key"))) {
         m_accessToken = parameters.value(QStringLiteral("ors.api_key")).toString();
     }
-    if (parameters.contains(QStringLiteral("ors.search.source"))) {
-        QStringList sources = parameters.value(QStringLiteral("ors.search.source")).toStringList();
+    if (parameters.contains(QStringLiteral("ors.search.sources"))) {
+        QStringList sources = parameters.value(QStringLiteral("ors.search.sources")).toStringList();
         for (auto source : sources) {
             m_sources += source + ",";
         }
