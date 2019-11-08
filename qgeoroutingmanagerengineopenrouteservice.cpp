@@ -55,6 +55,11 @@ QGeoRouteReply* QGeoRoutingManagerEngineOpenrouteservice::calculateRoute(const Q
         url += QStringLiteral("cycling-regular");
     } else if (travelModes.testFlag(QGeoRouteRequest::CarTravel)) {
         url += QStringLiteral("driving-car");
+    } else if (travelModes.testFlag(QGeoRouteRequest::TruckTravel)) {
+        url += QStringLiteral("driving-hgv");
+    } else {
+        url += QStringLiteral("driving-car");
+        qWarning()<<"Undefined or unimplemented QGeoRouteRequest::TravelMode. Defaulting to QGeoRouteRequest::CarTravel.";
     }
     url += QStringLiteral("/json");
 
@@ -64,6 +69,8 @@ QGeoRouteReply* QGeoRoutingManagerEngineOpenrouteservice::calculateRoute(const Q
     networkRequest.setRawHeader(QByteArrayLiteral("Accept"), QByteArrayLiteral("application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8"));
     networkRequest.setRawHeader(QByteArrayLiteral("Authorization"), m_accessToken.toUtf8());
 
+    QJsonObject geojson;
+
     QJsonArray coordinates;
     for (const auto &c : request.waypoints()) {
         QJsonArray waypoint;
@@ -71,12 +78,17 @@ QGeoRouteReply* QGeoRoutingManagerEngineOpenrouteservice::calculateRoute(const Q
         waypoint.append(c.latitude());
         coordinates.append(waypoint);
     }
-
-    QJsonObject geojson;
     geojson.insert(QStringLiteral("coordinates"), coordinates);
+
     geojson.insert(QStringLiteral("elevation"), true);
     geojson.insert(QStringLiteral("instructions"), false);
-    geojson.insert(QStringLiteral("preference"), QStringLiteral("shortest"));
+
+    QGeoRouteRequest::RouteOptimizations routeOptimization = request.routeOptimization();
+    if (routeOptimization.testFlag(QGeoRouteRequest::ShortestRoute)) {
+        geojson.insert(QStringLiteral("preference"), QStringLiteral("shortest"));
+    } else if (routeOptimization.testFlag(QGeoRouteRequest::FastestRoute)) {
+        geojson.insert(QStringLiteral("preference"), QStringLiteral("fastest"));
+    }
 
     QNetworkReply *reply = m_networkManager->post(networkRequest, QJsonDocument(geojson).toJson());
 
