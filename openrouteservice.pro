@@ -1,6 +1,6 @@
 TARGET = qtgeoservices_openrouteservice
 
-QT += location-private positioning-private network
+QT += location positioning network
 
 HEADERS += \
     qgeocodereplyopenrouteservice.h \
