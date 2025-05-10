@@ -81,13 +81,17 @@ static QList<QGeoCoordinate> parseGeometry(const QJsonValue &geometry)
     return path;
 }
 
+QGeoRouteReplyOpenrouteservice::QGeoRouteReplyOpenrouteservice(QObject *parent)
+    : QGeoRouteReply(QGeoRouteRequest(), parent), m_reply(nullptr)
+{
+}
+
 QGeoRouteReplyOpenrouteservice::QGeoRouteReplyOpenrouteservice(QNetworkReply *reply, const QGeoRouteRequest &request,
                                      QObject *parent)
 :   QGeoRouteReply(request, parent), m_reply(reply)
 {
-    connect(m_reply, SIGNAL(finished()), this, SLOT(networkReplyFinished()));
-    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
-            this, SLOT(networkReplyError(QNetworkReply::NetworkError)));
+    connect(m_reply, &QNetworkReply::finished, this, &QGeoRouteReplyOpenrouteservice::networkReplyFinished);
+    connect(m_reply, &QNetworkReply::errorOccurred, this, &QGeoRouteReplyOpenrouteservice::networkReplyError);
 }
 
 QGeoRouteReplyOpenrouteservice::~QGeoRouteReplyOpenrouteservice()

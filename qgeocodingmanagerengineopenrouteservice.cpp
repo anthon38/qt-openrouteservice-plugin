@@ -115,8 +115,7 @@ QGeoCodeReply *QGeoCodingManagerEngineOpenrouteservice::geocode(const QString &a
     QGeoCodeReplyOpenrouteservice *geocodeReply = new QGeoCodeReplyOpenrouteservice(reply, this);
 
     connect(geocodeReply, &QGeoCodeReplyOpenrouteservice::finished, this, &QGeoCodingManagerEngineOpenrouteservice::onReplyFinished);
-    connect(geocodeReply, QOverload<QGeoCodeReply::Error, const QString &>::of(&QGeoCodeReply::error),
-            this, &QGeoCodingManagerEngineOpenrouteservice::onReplyError);
+    connect(geocodeReply, &QGeoCodeReplyOpenrouteservice::errorOccurred, this, &QGeoCodingManagerEngineOpenrouteservice::onReplyError);
 
     return geocodeReply;
 }
@@ -143,8 +142,7 @@ QGeoCodeReply *QGeoCodingManagerEngineOpenrouteservice::reverseGeocode(const QGe
     QGeoCodeReplyOpenrouteservice *geocodeReply = new QGeoCodeReplyOpenrouteservice(reply, this);
 
     connect(geocodeReply, &QGeoCodeReplyOpenrouteservice::finished, this, &QGeoCodingManagerEngineOpenrouteservice::onReplyFinished);
-    connect(geocodeReply, QOverload<QGeoCodeReply::Error, const QString &>::of(&QGeoCodeReply::error),
-            this, &QGeoCodingManagerEngineOpenrouteservice::onReplyError);
+    connect(geocodeReply,  &QGeoCodeReplyOpenrouteservice::errorOccurred, this, &QGeoCodingManagerEngineOpenrouteservice::onReplyError);
 
     return geocodeReply;
 }
@@ -160,7 +158,7 @@ void QGeoCodingManagerEngineOpenrouteservice::onReplyError(QGeoCodeReply::Error 
 {
     QGeoCodeReply *reply = qobject_cast<QGeoCodeReply *>(sender());
     if (reply)
-        Q_EMIT(error(reply, errorCode, errorString));
+        Q_EMIT(errorOccurred(reply, errorCode, errorString));
 }
 
 QT_END_NAMESPACE

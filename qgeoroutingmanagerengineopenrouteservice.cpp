@@ -113,7 +113,7 @@ void QGeoRoutingManagerEngineOpenrouteservice::replyError(QGeoRouteReply::Error 
 {
     QGeoRouteReply *reply = qobject_cast<QGeoRouteReply *>(sender());
     if (reply)
-        Q_EMIT(error(reply, errorCode, errorString));
+        Q_EMIT(errorOccurred(reply, errorCode, errorString));
 }
 
 QT_END_NAMESPACE

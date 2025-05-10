@@ -25,6 +25,7 @@
 #include <QGeoCoordinate>
 #include <QGeoRectangle>
 #include <QGeoAddress>
+#include <QGeoLocation>
 
 QT_BEGIN_NAMESPACE
 
@@ -52,8 +53,7 @@ QGeoCodeReplyOpenrouteservice::QGeoCodeReplyOpenrouteservice(QNetworkReply *repl
     }
 
     connect(reply, &QNetworkReply::finished, this, &QGeoCodeReplyOpenrouteservice::onNetworkReplyFinished);
-    connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
-            this, &QGeoCodeReplyOpenrouteservice::onNetworkReplyError);
+    connect(reply, &QNetworkReply::errorOccurred, this, &QGeoCodeReplyOpenrouteservice::onNetworkReplyError);
 
     connect(this, &QGeoCodeReply::aborted, reply, &QNetworkReply::abort);
     connect(this, &QObject::destroyed, reply, &QObject::deleteLater);
@@ -89,7 +89,7 @@ void QGeoCodeReplyOpenrouteservice::onNetworkReplyFinished()
                 bbox.setTopRight(QGeoCoordinate(box.at(3).toDouble(), box.at(2).toDouble()));
             }
             if (bbox.isValid()) {
-                location.setBoundingBox(bbox);
+                location.setBoundingShape(bbox);
             }
         }
         QJsonObject geometry = feature.value(QStringLiteral("geometry")).toObject();

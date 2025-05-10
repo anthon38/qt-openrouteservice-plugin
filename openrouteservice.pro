@@ -2,6 +2,10 @@ TARGET = qtgeoservices_openrouteservice
 
 QT += location positioning network
 
+CONFIG += c++17 plugin shared
+
+TEMPLATE = lib
+
 HEADERS += \
     qgeocodereplyopenrouteservice.h \
     qgeocodingmanagerengineopenrouteservice.h \
